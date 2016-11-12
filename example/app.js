@@ -22,12 +22,12 @@ var swaggerDefinition = {
 }
 app.use('/auth/v1', expressMicroserviceAuth(require('./db'), swaggerDefinition, require('./options.json')));
 
-/*var swaggerDefinitionBis = {
+var swaggerDefinitionBis = {
   host: 'localhost:'+port,
-  basePath: '/authBis',
+  basePath: '/authBis/v1',
   schemes: ['http']
 }
-app.use('/authBis', expressMicroserviceAuth(require('./dbBis'), swaggerDefinitionBis));*/
+app.use('/authBis/v1', expressMicroserviceAuth(require('./dbBis'), swaggerDefinitionBis, require('./options.json')));
 
 
 app.get("/", function(req, res) {
