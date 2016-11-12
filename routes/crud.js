@@ -41,7 +41,10 @@ module.exports = function(app, db, options) {
         var modelInfo = models[modelKey];
         //var modelResource = Resource(router, '', modelKey, model).rest(); //without dependencies
         var modelResource = Resource(router, basePath, modelKey, modelInfo.model).rest({
-          before: before
+          before: before ? before : function(req, res, next)  {
+            req.query.populate = req.query.populate ? req.query.populate : '__NONE__';
+            next();
+          }
         });
         swaggerAdd(swaggerDefinition, modelResource.swagger());
 
@@ -49,7 +52,9 @@ module.exports = function(app, db, options) {
           prepareCrud(modelInfo.parentOf, basePath+"/"+modelKey+"/:"+modelKey+"Id", function(req, res, next)  {
             req.body[modelKey] = req.params[modelKey+"Id"];
             req.modelQuery = this.model.where(modelKey, req.params[modelKey+"Id"]);
-            next();
+            //req.modelQuery = req.modelQuery.populate(modelKey)
+              req.query.populate = req.query.populate ? req.query.populate : '__NONE__';
+              next();
           });
         }
 
