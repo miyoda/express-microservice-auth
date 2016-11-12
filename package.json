@@ -1,6 +1,6 @@
 {
   "name": "express-microservice-auth",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "express microservice for local and social auth with passport and mongoose",
   "main": "index.js",
   "scripts": {
