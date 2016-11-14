@@ -25,9 +25,10 @@ module.exports = function(app, db, options) {
           passReqToCallback : true,
           session: false
         }
-        /*,"jwt": {
-          jwtFromRequest: ExtractJwt.fromAuthHeader()
-        }*/
+        ,"jwt": {
+          "secretOrKey": "MY_SECRET",
+          "expiresInSeconds": 3600
+        }
         ,"facebook": {
           "enableRedirect": false,
           "enableToken": false,
@@ -146,23 +147,34 @@ module.exports = function(app, db, options) {
       }
     }
 
-    var finish = function(req, res, err, user) {//function(req, res, next) {
-      var callbackRedirect = req.query.callback;
-      callbackRedirect = callbackRedirect ? callbackRedirect : req.query.state;
-      callbackRedirect = callbackRedirect ? callbackRedirect : '../../more/callbackdefault';
-      var indexOfQ = callbackRedirect.indexOf('?');
+    var finish = function(req, res, err, user, redirect) {//function(req, res, next) {
       var query = '';
       if (err) {
-        query = 'err=' + err;
+        if (redirect) {
+          sendRedirect('err=' + encodeURIComponent(err));
+        } else {
+          var json = {err: err};
+          res.send(JSON.stringify(json));
+        }
       } else {
-        //var user = req.user;
         var token = jwt.sign(user, options.jwt.secretOrKey, { expiresIn: options.jwt.expiresInSeconds });
         console.log('user: '+ JSON.stringify(user));
         console.log('token: %s ', token);
-
-        query = 'jwt=' + encodeURIComponent(token);
+        if (redirect) {
+          sendRedirect('jwt=' + encodeURIComponent(token));
+        } else {
+          var json = {jwt: token};
+          res.send(JSON.stringify(json));
+        }
       }
-      res.redirect(callbackRedirect + (indexOfQ == -1 ? '?' : '&') + query);
+
+      function sendRedirect(query) {
+        var callbackRedirect = req.query.callback;
+        callbackRedirect = callbackRedirect ? callbackRedirect : req.query.state;
+        callbackRedirect = callbackRedirect ? callbackRedirect : '../../more/callbackdefault';
+        var indexOfQ = callbackRedirect.indexOf('?');
+        res.redirect(callbackRedirect + (indexOfQ == -1 ? '?' : '&') + query);
+      }
   }
 
     /**
@@ -234,12 +246,12 @@ module.exports = function(app, db, options) {
       var authOpts = extend({}, options.authOpts);
 
       if (req.user) {
-        passport.authenticate(method+"-token", function(err, user) {
-          finish(req, res, err, user);
+        passport.authenticate(method+"-token", function(todo, user, err) {
+          finish(req, res, err && err.message ? err.message : err, user, false);
         })(req, res, next);
       } else {
-        passport.authorize(method+"-token", function(err, user) {
-          finish(req, res, err, user);
+        passport.authorize(method+"-token", function(todo, user, err) {
+          finish(req, res, err && err.message ? err.message : err, user, false);
         })(req, res, next);
       }
     });
@@ -274,12 +286,12 @@ module.exports = function(app, db, options) {
       var authOpts = extend({}, options.authOpts);
 
       if (req.user) {
-        passport.authenticate(method+"-authcode", function(err, user) {
-          finish(req, res, err, user);
+        passport.authenticate(method+"-authcode", function(todo, user, err) {
+          finish(req, res, err && err.message ? err.message : err, user, false);
         })(req, res, next);
       } else {
-        passport.authorize(method+"-authcode", function(err, user) {
-          finish(req, res, err, user);
+        passport.authorize(method+"-authcode", function(todo, user, err) {
+          finish(req, res, err && err.message ? err.message : err, user, false);
         })(req, res, next);
       }
     });
@@ -291,7 +303,7 @@ module.exports = function(app, db, options) {
     var method = req.params.method;
     console.log('/login/'+method+'/callback query='+ JSON.stringify(req.query));
     passport.authenticate(method, options.authOpts, function(err, user) {
-      finish(req, res, err, user);
+      finish(req, res, err, user, true);
     })(req, res, next);
   });
 

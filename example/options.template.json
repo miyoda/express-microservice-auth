@@ -4,8 +4,8 @@
     "scope": []
   }
   ,"jwt": {
-    "secretOrKey": "ssssssssssssh",
-    "expiresInSeconds": 30
+    "secretOrKey": "MY_SECRET",
+    "expiresInSeconds": 3600
   }
   ,"facebook": {
     "enableRedirect": false,
