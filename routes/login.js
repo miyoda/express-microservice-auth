@@ -3,8 +3,8 @@
 module.exports = function(app, db, options) {
   var UserModel = require('../models/user')(db);
   var AccessModel = require('../models/access')(db);
-  var googleapiGetEmail = require('../utils/googleapi-get-email');
-  var concat = require('../utils/concat-unique');
+  var googleapiGetEmail = require('googleapi-get-email');
+  var concat = require('concat-unique');
   var extend = require('extend');
   var jwt = require('jsonwebtoken');
   var yyyymmdd = require('yyyy-mm-dd');

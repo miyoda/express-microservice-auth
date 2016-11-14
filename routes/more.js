@@ -2,7 +2,7 @@
 
 module.exports = function(app, db, options) {
   var UserModel = require('../models/user')(db);
-  var concat = require('../utils/concat-unique');
+  var concat = require('concat-unique');
   var extend = require('extend');
   var jwt = require('jsonwebtoken');
   var express = require('express');

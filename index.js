@@ -1,8 +1,7 @@
 'use strict';
 
 module.exports = function(db, swaggerDefinition, options) {
-  var swaggerAdd = require('./utils/swagger-add');
-  var swaggerUri = require('./utils/swagger-uri');
+  var swaggerUtils = require('swagger-utils');
   var extend = require('extend');
   var express = require('express');
   var router = express.Router();
@@ -23,20 +22,20 @@ module.exports = function(db, swaggerDefinition, options) {
     tags: []
   }, swaggerDefinition);
 
-  options.path = swaggerUri(swaggerDefinition);
+  options.path = swaggerUtils.uri(swaggerDefinition);
 
   //static
   router.use(express.static('static'));
 
   //crud - Basic API 4 models
-  swaggerAdd(swaggerDefinition, require('./routes/crud')(router, db, options));
+  swaggerUtils.add(swaggerDefinition, require('./routes/crud')(router, db, options));
 
   //login - passport routes
-  swaggerAdd(swaggerDefinition, require('./routes/login')(router, db, options));
+  swaggerUtils.add(swaggerDefinition, require('./routes/login')(router, db, options));
 
   //more - more routes
-  swaggerAdd(swaggerDefinition, require('./routes/more')(router, db, options));
+  swaggerUtils.add(swaggerDefinition, require('./routes/more')(router, db, options));
 
-  require('./utils/swagger-setup')(router, swaggerDefinition);
+  swaggerUtils.setup(router, swaggerDefinition);
   return router;
 };

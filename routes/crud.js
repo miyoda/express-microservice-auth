@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(app, db, options) {
-  var swaggerAdd = require('../utils/swagger-add');
+  var swaggerUtils = require('swagger-utils');
   var Resource = require('resourcejs');
   var express = require('express');
   var router = express.Router();
@@ -46,7 +46,7 @@ module.exports = function(app, db, options) {
             next();
           }
         });
-        swaggerAdd(swaggerDefinition, modelResource.swagger());
+        swaggerUtils.add(swaggerDefinition, modelResource.swagger());
 
         if (modelInfo.parentOf) {
           prepareCrud(modelInfo.parentOf, basePath+"/"+modelKey+"/:"+modelKey+"Id", function(req, res, next)  {
